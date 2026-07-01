@@ -1,0 +1,516 @@
+// BuyWise AI — Prisma schema
+// Prisma 7: `prisma-client` generator with a mandatory output path. The
+// datasource URL lives in prisma.config.ts. Money is stored as integers in
+// whole INR (rupees) to keep values serializable across the RSC boundary.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM
+  FAMILY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+enum StoreType {
+  MARKETPLACE
+  OFFICIAL
+  RETAILER
+}
+
+enum ProductStatus {
+  ACTIVE
+  DISCONTINUED
+  UPCOMING
+  OUT_OF_STOCK
+}
+
+enum Currency {
+  INR
+  USD
+}
+
+enum PriceAlertStatus {
+  ACTIVE
+  TRIGGERED
+  PAUSED
+  EXPIRED
+}
+
+enum ReviewSentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum NotificationType {
+  PRICE_DROP
+  DEAL
+  ALERT_TRIGGERED
+  RECOMMENDATION
+  SYSTEM
+}
+
+enum DiscountType {
+  PERCENT
+  FLAT
+}
+
+// ---------------------------------------------------------------------------
+// Identity & billing
+// ---------------------------------------------------------------------------
+
+/// Application profile. `id` mirrors the Supabase `auth.users` id (UUID).
+model User {
+  id            String           @id @db.Uuid
+  email         String           @unique
+  name          String?
+  avatarUrl     String?
+  role          UserRole         @default(USER)
+  plan          SubscriptionPlan @default(FREE)
+  shoppingScore Int              @default(0)
+  moneySaved    Int              @default(0) // in INR
+  onboardedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  subscription   Subscription?
+  wishlists      Wishlist[]
+  priceAlerts    PriceAlert[]
+  searches       SearchQuery[]
+  conversations  Conversation[]
+  recentlyViewed RecentlyViewed[]
+  comparisons    Comparison[]
+  notifications  Notification[]
+
+  @@index([role])
+  @@map("users")
+}
+
+model Subscription {
+  id                   String             @id @default(uuid(7)) @db.Uuid
+  userId               String             @unique @db.Uuid
+  plan                 SubscriptionPlan   @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?            @unique
+  stripeSubscriptionId String?            @unique
+  stripePriceId        String?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
+
+// ---------------------------------------------------------------------------
+// Catalog: stores, brands, categories, products
+// ---------------------------------------------------------------------------
+
+model Store {
+  id                String    @id @default(uuid(7)) @db.Uuid
+  slug              String    @unique
+  name              String
+  logoUrl           String?
+  websiteUrl        String
+  type              StoreType @default(MARKETPLACE)
+  isOfficialChannel Boolean   @default(false)
+  country           String    @default("IN")
+  affiliateTag      String?
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  offers      ProductOffer[]
+  coupons     Coupon[]
+  reviews     Review[]
+  priceAlerts PriceAlert[]
+
+  @@index([isActive])
+  @@map("stores")
+}
+
+model Brand {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  slug        String   @unique
+  name        String
+  logoUrl     String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products Product[]
+
+  @@map("brands")
+}
+
+model Category {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  slug        String   @unique
+  name        String
+  description String?
+  icon        String?
+  parentId    String?  @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  parent   Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryHierarchy")
+  products Product[]
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+model Product {
+  id               String        @id @default(uuid(7)) @db.Uuid
+  slug             String        @unique
+  name             String
+  brandId          String        @db.Uuid
+  categoryId       String        @db.Uuid
+  shortDescription String?
+  description      String?
+  images           String[]
+  keySpecs         Json?
+  // AI-derived 0-100 scores (nullable until analyzed)
+  aiScore          Int?
+  performanceScore Int?
+  batteryScore     Int?
+  displayScore     Int?
+  cameraScore      Int?
+  valueScore       Int?
+  buildScore       Int?
+  repairScore      Int?
+  rating           Float?
+  reviewCount      Int           @default(0)
+  warrantyMonths   Int?
+  releaseDate      DateTime?
+  status           ProductStatus @default(ACTIVE)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  brand           Brand            @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  category        Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  offers          ProductOffer[]
+  reviewAnalysis  ReviewAnalysis?
+  reviews         Review[]
+  priceHistory    PriceHistory[]
+  wishlistItems   WishlistItem[]
+  priceAlerts     PriceAlert[]
+  recentlyViewed  RecentlyViewed[]
+  comparisonItems ComparisonItem[]
+
+  @@index([categoryId])
+  @@index([brandId])
+  @@index([status])
+  @@index([aiScore])
+  @@map("products")
+}
+
+/// A product's listing on a specific store (the price-comparison unit).
+model ProductOffer {
+  id            String   @id @default(uuid(7)) @db.Uuid
+  productId     String   @db.Uuid
+  storeId       String   @db.Uuid
+  url           String
+  price         Int // in INR
+  mrp           Int? // list price, in INR
+  currency      Currency @default(INR)
+  inStock       Boolean  @default(true)
+  stockCount    Int?
+  deliveryDays  Int?
+  isOfficial    Boolean  @default(false)
+  cashback      Int?     @default(0)
+  couponCode    String?
+  rating        Float?
+  reviewCount   Int      @default(0)
+  lastFetchedAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  product      Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store        Store          @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  priceHistory PriceHistory[]
+
+  @@unique([productId, storeId])
+  @@index([storeId])
+  @@index([price])
+  @@map("product_offers")
+}
+
+model PriceHistory {
+  id         String   @id @default(uuid(7)) @db.Uuid
+  offerId    String   @db.Uuid
+  productId  String   @db.Uuid
+  price      Int // in INR
+  currency   Currency @default(INR)
+  recordedAt DateTime @default(now())
+
+  offer   ProductOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  product Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, recordedAt])
+  @@index([offerId, recordedAt])
+  @@map("price_history")
+}
+
+// ---------------------------------------------------------------------------
+// Reviews & AI analysis
+// ---------------------------------------------------------------------------
+
+model ReviewAnalysis {
+  id                   String   @id @default(uuid(7)) @db.Uuid
+  productId            String   @unique @db.Uuid
+  summary              String
+  verdict              String
+  pros                 String[]
+  cons                 String[]
+  topPraises           String[]
+  topComplaints        String[]
+  longTermInsights     String?
+  whoShouldBuy         String[]
+  whoShouldAvoid       String[]
+  fakeReviewScore      Int      @default(0) // 0-100, estimate
+  fakeReviewConfidence Float    @default(0) // 0-1
+  sentiment            Json? // { positive, neutral, negative }
+  analyzedCount        Int      @default(0)
+  model                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("review_analyses")
+}
+
+model Review {
+  id               String           @id @default(uuid(7)) @db.Uuid
+  productId        String           @db.Uuid
+  storeId          String?          @db.Uuid
+  authorName       String?
+  rating           Float
+  title            String?
+  body             String
+  verifiedPurchase Boolean          @default(false)
+  helpfulCount     Int              @default(0)
+  sentiment        ReviewSentiment?
+  isSuspectedFake  Boolean          @default(false)
+  fakeScore        Int? // 0-100
+  postedAt         DateTime?
+  createdAt        DateTime         @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store   Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([isSuspectedFake])
+  @@map("reviews")
+}
+
+// ---------------------------------------------------------------------------
+// User activity: wishlists, alerts, searches, chat, comparisons
+// ---------------------------------------------------------------------------
+
+model Wishlist {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @db.Uuid
+  name      String   @default("My Wishlist")
+  isDefault Boolean  @default(false)
+  isShared  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
+
+  @@index([userId])
+  @@map("wishlists")
+}
+
+model WishlistItem {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  wishlistId  String   @db.Uuid
+  productId   String   @db.Uuid
+  note        String?
+  targetPrice Int? // in INR
+  addedAt     DateTime @default(now())
+
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@index([productId])
+  @@map("wishlist_items")
+}
+
+model PriceAlert {
+  id             String           @id @default(uuid(7)) @db.Uuid
+  userId         String           @db.Uuid
+  productId      String           @db.Uuid
+  storeId        String?          @db.Uuid
+  targetPrice    Int // in INR
+  lastKnownPrice Int?
+  status         PriceAlertStatus @default(ACTIVE)
+  notifyByEmail  Boolean          @default(true)
+  notifyByPush   Boolean          @default(false)
+  triggeredAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store   Store?  @relation(fields: [storeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([status])
+  @@map("price_alerts")
+}
+
+model SearchQuery {
+  id          String   @id @default(uuid(7)) @db.Uuid
+  userId      String?  @db.Uuid
+  query       String
+  category    String?
+  filters     Json?
+  resultCount Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("search_queries")
+}
+
+model Conversation {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @db.Uuid
+  title     String   @default("New chat")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@index([userId])
+  @@map("conversations")
+}
+
+model Message {
+  id             String      @id @default(uuid(7)) @db.Uuid
+  conversationId String      @db.Uuid
+  role           MessageRole
+  content        String
+  metadata       Json?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@map("messages")
+}
+
+model RecentlyViewed {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @db.Uuid
+  productId String   @db.Uuid
+  viewedAt  DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId, viewedAt])
+  @@map("recently_viewed")
+}
+
+model Comparison {
+  id        String   @id @default(uuid(7)) @db.Uuid
+  userId    String   @db.Uuid
+  name      String   @default("Comparison")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items ComparisonItem[]
+
+  @@index([userId])
+  @@map("comparisons")
+}
+
+model ComparisonItem {
+  id           String   @id @default(uuid(7)) @db.Uuid
+  comparisonId String   @db.Uuid
+  productId    String   @db.Uuid
+  addedAt      DateTime @default(now())
+
+  comparison Comparison @relation(fields: [comparisonId], references: [id], onDelete: Cascade)
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([comparisonId, productId])
+  @@map("comparison_items")
+}
+
+model Notification {
+  id        String           @id @default(uuid(7)) @db.Uuid
+  userId    String           @db.Uuid
+  type      NotificationType
+  title     String
+  body      String?
+  data      Json?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
+}
+
+model Coupon {
+  id            String        @id @default(uuid(7)) @db.Uuid
+  storeId       String        @db.Uuid
+  code          String
+  description   String?
+  discountType  DiscountType?
+  discountValue Int?
+  minOrderValue Int?
+  expiresAt     DateTime?
+  isActive      Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@map("coupons")
+}

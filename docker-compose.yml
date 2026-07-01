@@ -1,0 +1,39 @@
+name: buywise
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: buywise-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: buywise
+      POSTGRES_PASSWORD: buywise_dev_password
+      POSTGRES_DB: buywise
+    ports:
+      - "5432:5432"
+    volumes:
+      - buywise_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U buywise -d buywise"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: buywise-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - buywise_redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  buywise_pgdata:
+  buywise_redisdata:
