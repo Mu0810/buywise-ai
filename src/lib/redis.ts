@@ -11,10 +11,14 @@ import { logger } from "@/lib/logger";
  * importing this module never crashes when Redis is unavailable.
  */
 function createRedisClient(): Redis {
+  // Managed Redis (e.g. Heroku Key-Value Store) uses TLS via a `rediss://` URL
+  // and self-signed certificates; local Redis uses a plain `redis://` URL.
+  const useTls = env.REDIS_URL.startsWith("rediss://");
   const client = new Redis(env.REDIS_URL, {
     lazyConnect: true,
     connectTimeout: 5_000,
     maxRetriesPerRequest: 2,
+    ...(useTls ? { tls: { rejectUnauthorized: false } } : {}),
     retryStrategy(times) {
       if (times > 5) return null;
       return Math.min(times * 200, 2_000);

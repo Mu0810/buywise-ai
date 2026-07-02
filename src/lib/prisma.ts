@@ -13,7 +13,15 @@ import { PrismaClient } from "@/generated/prisma/client";
  * database connections across hot reloads.
  */
 function createPrismaClient() {
-  const adapter = new PrismaPg({ connectionString: env.DATABASE_URL });
+  const connectionString = env.DATABASE_URL;
+  // Managed Postgres (Heroku, Supabase, RDS, etc.) requires TLS and commonly
+  // presents self-signed certificates, whereas local Docker Postgres does not
+  // use TLS. Detect a local host and only enable SSL for remote databases.
+  const isLocal = /@(localhost|127\.0\.0\.1)\b/.test(connectionString);
+  const adapter = new PrismaPg({
+    connectionString,
+    ...(isLocal ? {} : { ssl: { rejectUnauthorized: false } }),
+  });
   return new PrismaClient({
     adapter,
     log: env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
