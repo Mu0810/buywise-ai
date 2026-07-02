@@ -10,7 +10,13 @@ if (!connectionString) {
   throw new Error("DATABASE_URL is not set. Create a .env file (see .env.example).");
 }
 
-const adapter = new PrismaPg({ connectionString });
+// Managed Postgres (Heroku, Supabase, etc.) requires TLS with self-signed
+// certs; local Docker Postgres does not. Match the runtime client's behaviour.
+const isLocalDb = /@(localhost|127\.0\.0\.1)\b/.test(connectionString);
+const adapter = new PrismaPg({
+  connectionString,
+  ...(isLocalDb ? {} : { ssl: { rejectUnauthorized: false } }),
+});
 const prisma = new PrismaClient({ adapter });
 
 const stores: Prisma.StoreCreateInput[] = [
