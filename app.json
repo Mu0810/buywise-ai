@@ -1,0 +1,62 @@
+{
+  "name": "buywise-ai",
+  "description": "BuyWise AI — AI-powered shopping intelligence platform (Next.js 16, React 19, TypeScript).",
+  "repository": "https://github.com/Mu0810/buywise-ai",
+  "keywords": ["next", "nextjs", "react", "typescript", "ai", "shopping", "prisma", "supabase"],
+  "stack": "heroku-24",
+  "buildpacks": [{ "url": "heroku/nodejs" }],
+  "formation": {
+    "web": { "quantity": 1, "size": "basic" }
+  },
+  "addons": ["heroku-postgresql:essential-0", "heroku-redis:mini"],
+  "env": {
+    "NEXT_PUBLIC_APP_URL": {
+      "description": "Public base URL of the deployed app, e.g. https://buywise-ai.herokuapp.com. Set BEFORE the first build so Next.js can inline it into the client bundle.",
+      "required": false
+    },
+    "NEXT_PUBLIC_SUPABASE_URL": {
+      "description": "Supabase project URL (Project Settings > API). Required to enable authentication.",
+      "required": false
+    },
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": {
+      "description": "Supabase anon (public) key.",
+      "required": false
+    },
+    "SUPABASE_SERVICE_ROLE_KEY": {
+      "description": "Supabase service role key (server-only; never exposed to the browser).",
+      "required": false
+    },
+    "AI_PROVIDER": {
+      "description": "auto | openai | rule-based. 'auto' uses OpenAI when OPENAI_API_KEY is set, otherwise the built-in rule-based engine.",
+      "value": "auto"
+    },
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API key. Enables real AI responses.",
+      "required": false
+    },
+    "OPENAI_MODEL": {
+      "value": "gpt-4o-mini"
+    },
+    "STRIPE_SECRET_KEY": {
+      "description": "Stripe secret key. Enables subscriptions/billing.",
+      "required": false
+    },
+    "STRIPE_WEBHOOK_SECRET": {
+      "description": "Stripe webhook signing secret for /api/webhooks/stripe.",
+      "required": false
+    },
+    "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY": {
+      "description": "Stripe publishable key (client).",
+      "required": false
+    },
+    "STRIPE_PRICE_PREMIUM_MONTHLY": { "required": false },
+    "STRIPE_PRICE_PREMIUM_YEARLY": { "required": false },
+    "STRIPE_PRICE_FAMILY_MONTHLY": { "required": false },
+    "STRIPE_PRICE_FAMILY_YEARLY": { "required": false },
+    "CRON_SECRET": {
+      "description": "Bearer token required by the /api/cron/check-alerts endpoint. Configure Heroku Scheduler to call it.",
+      "generator": "secret",
+      "required": false
+    }
+  }
+}
