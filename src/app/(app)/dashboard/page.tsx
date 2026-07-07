@@ -44,7 +44,7 @@ export default async function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href="/chat"
-          className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-violet-500/10 via-fuchsia-500/10 to-indigo-500/10 p-5 transition-colors hover:border-brand/50"
+          className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 via-transparent to-signal/10 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10"
         >
           <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand text-brand-foreground">
             <Sparkles className="size-5" />
@@ -102,8 +102,14 @@ export default async function DashboardPage() {
         <section className="flex flex-col gap-4">
           <h2 className="text-lg font-semibold">Recently viewed</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {recentlyViewed.map((item) => (
-              <ProductCard key={item.product.id} item={item} />
+            {recentlyViewed.map((item, index) => (
+              <div
+                key={item.product.id}
+                className="animate-enter"
+                style={{ "--stagger": index } as React.CSSProperties}
+              >
+                <ProductCard item={item} />
+              </div>
             ))}
           </div>
         </section>
@@ -117,8 +123,14 @@ export default async function DashboardPage() {
           </Link>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {recommendations.map((item) => (
-            <ProductCard key={item.product.id} item={item} />
+          {recommendations.map((item, index) => (
+            <div
+              key={item.product.id}
+              className="animate-enter"
+              style={{ "--stagger": index } as React.CSSProperties}
+            >
+              <ProductCard item={item} />
+            </div>
           ))}
         </div>
       </section>

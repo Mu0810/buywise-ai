@@ -1,5 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import {
+  Bricolage_Grotesque,
+  Instrument_Sans,
+  Spline_Sans_Mono,
+} from "next/font/google";
 
 import { Providers } from "@/components/providers";
 import { siteConfig } from "@/config/site";
@@ -7,12 +11,22 @@ import { cn } from "@/lib/utils";
 
 import "./globals.css";
 
-const geistSans = Geist({
+/**
+ * Type stack: Bricolage Grotesque carries the display voice (headlines),
+ * Instrument Sans does the everyday talking, and Spline Sans Mono handles
+ * data — prices, scores, counters — like a well-kept ledger.
+ */
+const sans = Instrument_Sans({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
 });
-const geistMono = Geist_Mono({
+const displayFont = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+});
+const mono = Spline_Sans_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
   display: "swap",
@@ -47,8 +61,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#faf8f2" },
+    { media: "(prefers-color-scheme: dark)", color: "#111a20" },
   ],
 };
 
@@ -60,7 +74,12 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={cn(geistSans.variable, geistMono.variable, "h-full antialiased")}
+      className={cn(
+        sans.variable,
+        displayFont.variable,
+        mono.variable,
+        "h-full antialiased",
+      )}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <Providers>

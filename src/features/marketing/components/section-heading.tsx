@@ -8,6 +8,10 @@ interface SectionHeadingProps {
   className?: string;
 }
 
+/**
+ * Section header: a mono ledger-label eyebrow with a gold tick, then the
+ * display-face headline. The eyebrow is data, the headline is voice.
+ */
 export function SectionHeading({
   eyebrow,
   title,
@@ -24,11 +28,12 @@ export function SectionHeading({
       )}
     >
       {eyebrow && (
-        <span className="inline-flex items-center rounded-full border border-border/60 bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
+        <span className="inline-flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-brand">
+          <span aria-hidden className="size-1.5 rounded-full bg-brand" />
           {eyebrow}
         </span>
       )}
-      <h2 className="max-w-2xl text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+      <h2 className="max-w-2xl text-balance font-display text-3xl font-semibold tracking-tight sm:text-4xl">
         {title}
       </h2>
       {description && (

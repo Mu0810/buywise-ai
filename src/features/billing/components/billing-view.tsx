@@ -91,7 +91,7 @@ export function BillingView({
       </div>
 
       {!isConfigured && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-600 dark:text-amber-400">
+        <div className="rounded-xl border border-orange-500/30 bg-orange-500/10 px-4 py-3 text-sm text-orange-600 dark:text-orange-400">
           Billing isn&apos;t configured in this environment. Add your Stripe
           secret key and price IDs to <code>.env</code> to enable checkout.
         </div>

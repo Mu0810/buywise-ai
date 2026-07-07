@@ -17,8 +17,8 @@ export default function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: 80,
-          background: "#0a0a0a",
-          color: "white",
+          background: "#111a20",
+          color: "#f2efe6",
           fontFamily: "sans-serif",
         }}
       >
@@ -31,7 +31,8 @@ export default function OpengraphImage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "linear-gradient(135deg, #8b5cf6, #d946ef, #6366f1)",
+              background: "linear-gradient(135deg, #f0c96a, #d99a33)",
+              color: "#14202a",
               fontSize: 38,
               fontWeight: 700,
             }}
@@ -52,7 +53,14 @@ export default function OpengraphImage() {
         >
           Stop opening ten tabs. Just ask BuyWise AI.
         </div>
-        <div style={{ display: "flex", fontSize: 28, color: "#a1a1aa", marginTop: 26 }}>
+        <div
+          style={{
+            display: "flex",
+            fontSize: 28,
+            color: "#93a1a8",
+            marginTop: 26,
+          }}
+        >
           AI shopping intelligence across every major store.
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 
+import { StaggerGroup, StaggerItem } from "@/components/motion";
 import { cn, getInitials } from "@/lib/utils";
 
 import { testimonials } from "../data/testimonials";
@@ -17,10 +18,13 @@ export function Testimonials() {
             description="People across India use BuyWise to buy the right thing at the right price — the first time."
           />
         </Reveal>
-        <div className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {testimonials.map((testimonial, index) => (
-            <Reveal key={testimonial.name} delay={(index % 3) * 0.05}>
-              <figure className="flex h-full flex-col rounded-2xl border border-border/60 bg-card p-6">
+        <StaggerGroup
+          stagger={0.06}
+          className="mt-14 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {testimonials.map((testimonial) => (
+            <StaggerItem key={testimonial.name} className="h-full">
+              <figure className="flex h-full flex-col rounded-2xl border border-border/60 bg-card p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand/30 hover:shadow-lg hover:shadow-brand/5">
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, star) => (
                     <Star
@@ -28,7 +32,7 @@ export function Testimonials() {
                       className={cn(
                         "size-4",
                         star < testimonial.rating
-                          ? "fill-amber-400 text-amber-400"
+                          ? "fill-brand text-brand"
                           : "text-muted-foreground/30",
                       )}
                     />
@@ -56,9 +60,9 @@ export function Testimonials() {
                   </span>
                 </figcaption>
               </figure>
-            </Reveal>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </section>
   );

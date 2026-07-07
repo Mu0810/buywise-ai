@@ -15,6 +15,7 @@ import { ReviewAnalysis } from "@/features/products/components/review-analysis";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { categoryIcon } from "@/features/products/lib/category-icon";
 import { pickBestOffer } from "@/features/products/services/product.service";
+import { ScoreRing } from "@/components/motion";
 import { ButtonLink } from "@/components/ui/button-link";
 import { JsonLd } from "@/components/shared/json-ld";
 import { formatCompactNumber, formatPrice } from "@/lib/utils";
@@ -107,7 +108,7 @@ export default async function ProductPage({
               <span>{product.brand.name}</span>
               {product.rating != null && (
                 <span className="flex items-center gap-1">
-                  <Star className="size-4 fill-amber-400 text-amber-400" />
+                  <Star className="size-4 fill-brand text-brand" />
                   {product.rating} &middot; {formatCompactNumber(product.reviewCount)}{" "}
                   reviews
                 </span>
@@ -121,11 +122,14 @@ export default async function ProductPage({
             </div>
           </div>
           {product.aiScore != null && (
-            <div className="flex flex-col items-center rounded-2xl border border-brand/30 bg-brand/5 px-4 py-2">
-              <span className="text-2xl font-semibold text-brand">
-                {product.aiScore}
-              </span>
-              <span className="text-xs text-muted-foreground">AI score</span>
+            <div className="flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/5 px-4 py-2.5">
+              <ScoreRing score={product.aiScore} size={52} strokeWidth={4.5} />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">AI score</span>
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  out of 100
+                </span>
+              </div>
             </div>
           )}
         </div>

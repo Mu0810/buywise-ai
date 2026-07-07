@@ -82,8 +82,14 @@ export default async function SearchPage({
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {items.map((item) => (
-                <ProductCard key={item.product.id} item={item} />
+              {items.map((item, index) => (
+                <div
+                  key={item.product.id}
+                  className="animate-enter"
+                  style={{ "--stagger": Math.min(index, 11) } as React.CSSProperties}
+                >
+                  <ProductCard item={item} />
+                </div>
               ))}
             </div>
           )}

@@ -17,12 +17,15 @@ export function ProductThumb({
   return (
     <div
       className={cn(
-        "relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-violet-500/10 via-fuchsia-500/5 to-indigo-500/10",
+        "relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-brand/10 via-transparent to-signal/10",
         className,
       )}
     >
       <div aria-hidden className="bg-grid absolute inset-0 opacity-40" />
-      <Icon className="relative size-12 text-brand/50" strokeWidth={1.5} />
+      <Icon
+        className="relative size-12 text-brand/50 transition-transform duration-500 ease-out group-hover:scale-110 group-hover:-rotate-3"
+        strokeWidth={1.5}
+      />
     </div>
   );
 }

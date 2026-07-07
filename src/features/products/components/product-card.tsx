@@ -17,7 +17,7 @@ export function ProductCard({ item }: { item: ProductListItem }) {
   const Icon = categoryIcon(product.category.slug);
 
   return (
-    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lg">
+    <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/10">
       <Link href={`/products/${product.slug}`} className="flex flex-1 flex-col">
         <ProductThumb Icon={Icon} className="aspect-[4/3]" />
         <div className="flex flex-1 flex-col gap-2 p-4">
@@ -26,24 +26,27 @@ export function ProductCard({ item }: { item: ProductListItem }) {
               {product.brand.name}
             </span>
             {product.aiScore != null && (
-              <Badge variant="secondary" className="shrink-0 gap-1 text-xs">
+              <Badge
+                variant="secondary"
+                className="shrink-0 gap-1 font-mono text-xs tabular-nums transition-colors duration-300 group-hover:bg-brand/15"
+              >
                 <span className="font-semibold text-brand">AI</span>
                 {product.aiScore}
               </Badge>
             )}
           </div>
-          <h3 className="line-clamp-2 min-h-10 text-sm font-medium">
+          <h3 className="line-clamp-2 min-h-10 font-sans text-sm font-medium">
             {product.name}
           </h3>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Star className="size-3.5 fill-amber-400 text-amber-400" />
+            <Star className="size-3.5 fill-brand text-brand" />
             {product.rating ?? "\u2014"}
             <span className="text-muted-foreground/50">&middot;</span>
             {formatCompactNumber(product.reviewCount)} reviews
           </div>
           <div className="mt-auto flex items-end justify-between pt-2">
             <div>
-              <p className="text-lg font-semibold">
+              <p className="font-mono text-lg font-semibold tabular-nums transition-colors duration-300 group-hover:text-brand">
                 {lowestPrice != null ? formatPrice(lowestPrice) : "\u2014"}
               </p>
               {discountPercent > 0 && (

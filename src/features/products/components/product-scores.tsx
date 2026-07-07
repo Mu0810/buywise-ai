@@ -23,8 +23,13 @@ export function ProductScores({ product }: { product: ProductDetail }) {
 
   return (
     <div className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
-      {scores.map((s) => (
-        <ScoreBar key={s.label} label={s.label} score={s.value} />
+      {scores.map((s, index) => (
+        <ScoreBar
+          key={s.label}
+          label={s.label}
+          score={s.value}
+          delay={index * 0.07}
+        />
       ))}
     </div>
   );

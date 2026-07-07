@@ -9,7 +9,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
-  --font-heading: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +40,12 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -46,75 +53,104 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-swift: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
+/* ------------------------------------------------------------------ */
+/* BuyWise "Ink & Gold" theme                                          */
+/*                                                                     */
+/* Light — warm paper with deep ink text; primary actions in ink.      */
+/* Dark  — petrol ink with warm paper text; primary actions in gold.   */
+/* Gold  = the verdict (scores, deals, highlights).                    */
+/* Signal (teal) = live activity (scanning, analysis in progress).     */
+/* ------------------------------------------------------------------ */
+
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
+  --background: oklch(0.977 0.006 90);
+  --foreground: oklch(0.24 0.02 240);
+  --card: oklch(0.995 0.003 90);
+  --card-foreground: oklch(0.24 0.02 240);
+  --popover: oklch(0.995 0.003 90);
+  --popover-foreground: oklch(0.24 0.02 240);
+  --primary: oklch(0.27 0.025 240);
+  --primary-foreground: oklch(0.975 0.008 90);
+  --secondary: oklch(0.94 0.01 90);
+  --secondary-foreground: oklch(0.27 0.025 240);
+  --muted: oklch(0.945 0.008 90);
+  --muted-foreground: oklch(0.5 0.02 240);
+  --accent: oklch(0.93 0.014 88);
+  --accent-foreground: oklch(0.27 0.025 240);
+  --destructive: oklch(0.577 0.215 27);
+  --border: oklch(0.888 0.01 88);
+  --input: oklch(0.888 0.01 88);
+  --ring: oklch(0.6 0.125 80);
+  --brand: oklch(0.58 0.125 78);
+  --brand-foreground: oklch(0.995 0.003 90);
+  --signal: oklch(0.52 0.095 205);
+  --signal-foreground: oklch(0.995 0.003 90);
+  --success: oklch(0.55 0.13 155);
+  --success-foreground: oklch(0.995 0.003 90);
+  --chart-1: oklch(0.62 0.13 80);
+  --chart-2: oklch(0.55 0.1 205);
+  --chart-3: oklch(0.35 0.03 240);
+  --chart-4: oklch(0.68 0.02 90);
+  --chart-5: oklch(0.5 0.12 55);
   --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar: oklch(0.963 0.008 90);
+  --sidebar-foreground: oklch(0.24 0.02 240);
+  --sidebar-primary: oklch(0.27 0.025 240);
+  --sidebar-primary-foreground: oklch(0.975 0.008 90);
+  --sidebar-accent: oklch(0.93 0.014 88);
+  --sidebar-accent-foreground: oklch(0.27 0.025 240);
+  --sidebar-border: oklch(0.888 0.01 88);
+  --sidebar-ring: oklch(0.6 0.125 80);
+  --grad-gold-1: oklch(0.68 0.13 88);
+  --grad-gold-2: oklch(0.56 0.14 70);
+  --grad-gold-3: oklch(0.48 0.11 50);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: oklch(0.16 0.02 235);
+  --foreground: oklch(0.93 0.012 90);
+  --card: oklch(0.2 0.022 235);
+  --card-foreground: oklch(0.93 0.012 90);
+  --popover: oklch(0.21 0.022 235);
+  --popover-foreground: oklch(0.93 0.012 90);
+  --primary: oklch(0.8 0.13 85);
+  --primary-foreground: oklch(0.19 0.02 235);
+  --secondary: oklch(0.25 0.022 235);
+  --secondary-foreground: oklch(0.93 0.012 90);
+  --muted: oklch(0.25 0.022 235);
+  --muted-foreground: oklch(0.67 0.02 235);
+  --accent: oklch(0.275 0.025 235);
+  --accent-foreground: oklch(0.93 0.012 90);
+  --destructive: oklch(0.7 0.19 25);
+  --border: oklch(0.93 0.012 90 / 10%);
+  --input: oklch(0.93 0.012 90 / 14%);
+  --ring: oklch(0.8 0.13 85);
+  --brand: oklch(0.8 0.13 85);
+  --brand-foreground: oklch(0.19 0.02 235);
+  --signal: oklch(0.77 0.1 195);
+  --signal-foreground: oklch(0.17 0.02 235);
+  --success: oklch(0.72 0.15 158);
+  --success-foreground: oklch(0.17 0.02 235);
+  --chart-1: oklch(0.8 0.13 85);
+  --chart-2: oklch(0.72 0.1 200);
+  --chart-3: oklch(0.88 0.06 95);
+  --chart-4: oklch(0.6 0.03 235);
+  --chart-5: oklch(0.66 0.13 55);
+  --sidebar: oklch(0.14 0.018 235);
+  --sidebar-foreground: oklch(0.93 0.012 90);
+  --sidebar-primary: oklch(0.8 0.13 85);
+  --sidebar-primary-foreground: oklch(0.19 0.02 235);
+  --sidebar-accent: oklch(0.275 0.025 235);
+  --sidebar-accent-foreground: oklch(0.93 0.012 90);
+  --sidebar-border: oklch(0.93 0.012 90 / 10%);
+  --sidebar-ring: oklch(0.8 0.13 85);
+  --grad-gold-1: oklch(0.9 0.11 98);
+  --grad-gold-2: oklch(0.82 0.14 82);
+  --grad-gold-3: oklch(0.72 0.14 62);
 }
 
 @layer base {
@@ -126,53 +162,133 @@
   }
   html {
     @apply font-sans;
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/* BuyWise AI brand theme                                             */
-/* ------------------------------------------------------------------ */
-@theme inline {
-  --color-brand: var(--brand);
-  --color-brand-foreground: var(--brand-foreground);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-}
-
-/* Brand accent is constant across themes for a consistent identity. */
-:root,
-.dark {
-  --brand: oklch(0.585 0.22 277);
-  --brand-foreground: oklch(0.985 0 0);
-  --success: oklch(0.62 0.15 155);
-  --success-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.585 0.22 277);
-  --primary-foreground: oklch(0.985 0 0);
-  --ring: oklch(0.585 0.22 277);
-}
-
-.dark {
-  --success: oklch(0.7 0.16 156);
-}
-
-@layer base {
-  html {
     scroll-behavior: smooth;
   }
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
   ::selection {
-    background-color: color-mix(in oklch, var(--brand) 30%, transparent);
+    background-color: color-mix(in oklch, var(--brand) 32%, transparent);
     color: var(--foreground);
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Motion vocabulary                                                   */
+/* ------------------------------------------------------------------ */
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes marquee-x {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes shimmer-x {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(4%, -5%, 0) scale(1.06);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in oklch, var(--signal) 45%, transparent);
+  }
+  70% {
+    box-shadow: 0 0 0 8px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+/* Server-friendly staggered entrance: set `--stagger: <n>` inline. */
+@utility animate-enter {
+  animation: enter-up 0.8s var(--ease-out-expo) both;
+  animation-delay: calc(var(--stagger, 0) * 70ms);
+}
+
+/* Infinite horizontal loop; duplicate the track content once. */
+@utility animate-marquee {
+  animation: marquee-x var(--marquee-duration, 42s) linear infinite;
+}
+
+@utility animate-float-drift {
+  animation: float-drift 18s ease-in-out infinite;
+}
+
+@utility animate-pulse-ring {
+  animation: pulse-ring 1.6s var(--ease-out-expo) infinite;
+}
+
+/* Shimmering text for "analyzing…" states. */
+@utility text-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--muted-foreground) 40%,
+    var(--foreground) 50%,
+    var(--muted-foreground) 60%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-x 2.2s linear infinite;
+}
+
+/* Soft edge fade for marquees / scrollers. */
+@utility mask-fade-x {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+
 @layer utilities {
-  /* Gradient wordmark / headline accent. */
+  /* Gold gradient for wordmark / headline accents (theme-aware). */
   .text-gradient-brand {
     background-image: linear-gradient(
       100deg,
-      oklch(0.606 0.25 292.717),
-      oklch(0.667 0.295 322.15),
-      oklch(0.585 0.233 277.117)
+      var(--grad-gold-1),
+      var(--grad-gold-2),
+      var(--grad-gold-3)
     );
     -webkit-background-clip: text;
     background-clip: text;
@@ -184,12 +300,12 @@
     background-image:
       linear-gradient(
         to right,
-        color-mix(in oklch, var(--foreground) 6%, transparent) 1px,
+        color-mix(in oklch, var(--foreground) 5%, transparent) 1px,
         transparent 1px
       ),
       linear-gradient(
         to bottom,
-        color-mix(in oklch, var(--foreground) 6%, transparent) 1px,
+        color-mix(in oklch, var(--foreground) 5%, transparent) 1px,
         transparent 1px
       );
     background-size: 56px 56px;
@@ -199,5 +315,35 @@
   .mask-radial-fade {
     -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
     mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+  }
+
+  /* Hairline gold rule used under section eyebrows. */
+  .rule-gold {
+    background-image: linear-gradient(
+      to right,
+      color-mix(in oklch, var(--brand) 70%, transparent),
+      transparent
+    );
+  }
+}
+
+/* Motion is a preference, not a requirement. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-enter,
+  .animate-marquee,
+  .animate-float-drift,
+  .animate-pulse-ring {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  .text-shimmer {
+    animation: none !important;
+    color: var(--muted-foreground);
+    background-image: none;
   }
 }

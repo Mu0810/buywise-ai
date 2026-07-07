@@ -16,7 +16,7 @@ type Analysis = NonNullable<ProductDetail["reviewAnalysis"]>;
 
 function fakeLabel(score: number): { label: string; tone: string } {
   if (score < 20) return { label: "Very few suspicious reviews", tone: "text-success" };
-  if (score < 45) return { label: "Some suspicious reviews", tone: "text-amber-500" };
+  if (score < 45) return { label: "Some suspicious reviews", tone: "text-orange-500" };
   return { label: "Many suspicious reviews", tone: "text-destructive" };
 }
 

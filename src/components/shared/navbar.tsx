@@ -13,6 +13,10 @@ import { marketingNav } from "@/config/navigation";
 import { useUser } from "@/features/auth/hooks/use-user";
 import { cn } from "@/lib/utils";
 
+/**
+ * Marketing header. Lives in ink at all times (matching the hero), turning
+ * into a floating glass bar once the page scrolls.
+ */
 export function Navbar() {
   const { user, isLoading } = useUser();
   const [scrolled, setScrolled] = useState(false);
@@ -27,9 +31,9 @@ export function Navbar() {
   return (
     <header
       className={cn(
-        "fixed inset-x-0 top-0 z-50 transition-all duration-300",
+        "dark fixed inset-x-0 top-0 z-50 text-foreground transition-all duration-300",
         scrolled
-          ? "border-b border-border/60 bg-background/80 backdrop-blur-xl"
+          ? "border-b border-border/60 bg-background/75 shadow-lg shadow-black/10 backdrop-blur-xl"
           : "border-b border-transparent",
       )}
     >
@@ -41,9 +45,13 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="group relative rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.title}
+                <span
+                  aria-hidden
+                  className="absolute inset-x-3 -bottom-px h-px origin-left scale-x-0 bg-brand transition-transform duration-300 ease-out group-hover:scale-x-100"
+                />
               </Link>
             ))}
           </nav>

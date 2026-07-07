@@ -31,7 +31,7 @@ export function ChatComposer({
   return (
     <form
       onSubmit={submit}
-      className="relative rounded-2xl border border-border/60 bg-card p-2 shadow-sm focus-within:border-brand/40"
+      className="relative rounded-2xl border border-border/60 bg-card p-2 shadow-sm transition-[border-color,box-shadow] duration-300 focus-within:border-brand/50 focus-within:shadow-[0_0_0_3px] focus-within:shadow-brand/10"
     >
       <textarea
         value={value}

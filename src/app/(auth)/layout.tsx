@@ -1,6 +1,6 @@
-import { Check, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { Logo } from "@/components/shared/logo";
 
@@ -10,43 +10,55 @@ const highlights = [
   "Price history and instant drop alerts",
 ];
 
+const stagger = (index: number) => ({ "--stagger": index }) as CSSProperties;
+
+/**
+ * Auth split view: the pitch panel lives in ink with gold accents (matching
+ * the marketing hero); the form side stays quiet and theme-following.
+ */
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-violet-600 via-fuchsia-600 to-indigo-700 p-10 text-white lg:flex">
+      <div className="dark relative hidden flex-col justify-between overflow-hidden bg-background p-10 text-foreground lg:flex">
         <div
           aria-hidden
-          className="bg-grid absolute inset-0 opacity-20 mix-blend-overlay"
+          className="bg-grid mask-radial-fade absolute inset-0 opacity-70"
         />
-        <Link href="/" className="relative flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/20">
-            <Sparkles className="size-4" strokeWidth={2.5} />
-          </span>
-          <span className="font-semibold tracking-tight">BuyWise AI</span>
+        <div
+          aria-hidden
+          className="animate-float-drift absolute -right-20 top-10 h-72 w-72 rounded-full bg-brand/15 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="animate-float-drift absolute -left-16 bottom-20 h-64 w-64 rounded-full bg-signal/12 blur-3xl [animation-delay:-8s]"
+        />
+        <Link href="/" className="relative">
+          <Logo />
         </Link>
-        <div className="relative max-w-md">
-          <blockquote className="text-2xl font-medium leading-snug">
+        <div className="animate-enter relative max-w-md" style={stagger(2)}>
+          <blockquote className="font-display text-2xl font-medium leading-snug">
             &ldquo;It feels like ChatGPT met Google Shopping. I just ask, and
-            trust the verdict.&rdquo;
+            trust the <span className="text-gradient-brand">verdict</span>.&rdquo;
           </blockquote>
-          <p className="mt-3 text-sm text-white/70">
+          <p className="mt-3 text-sm text-muted-foreground">
             &mdash; Ananya, founder in Chennai
           </p>
         </div>
-        <ul className="relative flex flex-col gap-3 text-sm text-white/90">
-          {highlights.map((item) => (
-            <li key={item} className="flex items-center gap-2">
-              <Check className="size-4 shrink-0" strokeWidth={2.5} />
+        <ul className="relative flex flex-col gap-3 text-sm text-foreground/90">
+          {highlights.map((item, index) => (
+            <li
+              key={item}
+              className="animate-enter flex items-center gap-2"
+              style={stagger(4 + index)}
+            >
+              <Check className="size-4 shrink-0 text-brand" strokeWidth={2.5} />
               {item}
             </li>
           ))}
         </ul>
       </div>
-      <main
-        id="main"
-        className="flex items-center justify-center p-6 sm:p-10"
-      >
-        <div className="w-full max-w-sm">
+      <main id="main" className="flex items-center justify-center p-6 sm:p-10">
+        <div className="animate-enter w-full max-w-sm" style={stagger(1)}>
           <div className="mb-8 lg:hidden">
             <Logo href="/" />
           </div>

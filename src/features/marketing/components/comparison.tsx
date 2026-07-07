@@ -10,7 +10,13 @@ function Cell({ value, highlight }: { value: boolean; highlight?: boolean }) {
   return (
     <td className={cn("p-4 text-center", highlight && "bg-brand/5")}>
       {value ? (
-        <Check className="mx-auto size-5 text-brand" strokeWidth={2.5} />
+        <Check
+          className={cn(
+            "mx-auto size-5",
+            highlight ? "text-brand" : "text-muted-foreground/70",
+          )}
+          strokeWidth={2.5}
+        />
       ) : (
         <Minus className="mx-auto size-4 text-muted-foreground/40" />
       )}
@@ -57,7 +63,7 @@ export function Comparison() {
               {comparisonRows.map((row) => (
                 <tr
                   key={row.capability}
-                  className="border-b border-border/40 last:border-0"
+                  className="border-b border-border/40 transition-colors last:border-0 hover:bg-muted/30"
                 >
                   <td className="p-4 text-left text-muted-foreground">
                     {row.capability}
