@@ -1,4 +1,5 @@
 import { ArrowUpRight, BadgeCheck, Tag, Truck } from "lucide-react";
+import type { CSSProperties } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import type { OfferWithStore } from "@/features/products/types";
@@ -24,7 +25,7 @@ export function PriceComparison({ offers }: { offers: OfferWithStore[] }) {
 
   return (
     <div className="flex flex-col gap-2">
-      {offers.map((offer) => {
+      {offers.map((offer, index) => {
         const isBest = offer.id === cheapest.id;
         return (
           <a
@@ -32,8 +33,9 @@ export function PriceComparison({ offers }: { offers: OfferWithStore[] }) {
             href={offer.url}
             target="_blank"
             rel="noreferrer"
+            style={{ "--stagger": index } as CSSProperties}
             className={cn(
-              "group flex items-center gap-3 rounded-xl border p-3 transition-colors",
+              "group animate-enter flex items-center gap-3 rounded-xl border p-3 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md hover:shadow-brand/5",
               isBest
                 ? "border-brand/50 bg-brand/5"
                 : "border-border/60 hover:border-brand/30",

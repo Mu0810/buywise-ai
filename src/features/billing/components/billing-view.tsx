@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -66,14 +67,17 @@ export function BillingView({
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8">
-      <div>
+      <div className="animate-enter">
         <h1 className="text-2xl font-semibold tracking-tight">Subscription</h1>
         <p className="mt-1 text-muted-foreground">
           Manage your BuyWise plan and billing.
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/60 bg-card p-5">
+      <div
+        className="animate-enter flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-border/60 bg-card p-5"
+        style={{ "--stagger": 1 } as React.CSSProperties}
+      >
         <div>
           <p className="text-sm text-muted-foreground">Current plan</p>
           <p className="text-xl font-semibold">{planLabel}</p>
@@ -129,7 +133,7 @@ export function BillingView({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        {pricingTiers.map((tier) => {
+        {pricingTiers.map((tier, index) => {
           const isFree = tier.monthly === 0;
           const planKey = tier.name.toUpperCase() as BillingPlan;
           const isCurrent = currentPlan === (isFree ? "FREE" : planKey);
@@ -138,20 +142,30 @@ export function BillingView({
             <div
               key={tier.name}
               className={cn(
-                "flex flex-col rounded-2xl border bg-card p-6",
+                "animate-enter flex flex-col rounded-2xl border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg",
                 tier.highlighted
-                  ? "border-brand/50 ring-1 ring-brand/20"
-                  : "border-border/60",
+                  ? "border-brand/50 ring-1 ring-brand/20 hover:shadow-brand/10"
+                  : "border-border/60 hover:border-brand/30 hover:shadow-brand/5",
               )}
+              style={{ "--stagger": 3 + index } as React.CSSProperties}
             >
               <h3 className="text-lg font-semibold">{tier.name}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {tier.description}
               </p>
-              <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-3xl font-semibold">
-                  {isFree ? "Free" : formatPrice(price)}
-                </span>
+              <div className="mt-4 flex items-baseline gap-1 overflow-hidden">
+                <AnimatePresence mode="popLayout" initial={false}>
+                  <motion.span
+                    key={isFree ? "free" : price}
+                    initial={{ y: 16, opacity: 0, filter: "blur(3px)" }}
+                    animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                    exit={{ y: -16, opacity: 0, filter: "blur(3px)" }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                    className="text-3xl font-semibold"
+                  >
+                    {isFree ? "Free" : formatPrice(price)}
+                  </motion.span>
+                </AnimatePresence>
                 {!isFree && (
                   <span className="text-sm text-muted-foreground">
                     {annual ? "/year" : "/month"}

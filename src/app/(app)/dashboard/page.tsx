@@ -32,7 +32,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div>
+      <div className="animate-enter">
         <h1 className="text-2xl font-semibold tracking-tight">
           Welcome back, {firstName}
         </h1>
@@ -44,9 +44,11 @@ export default async function DashboardPage() {
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href="/chat"
-          className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 via-transparent to-signal/10 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10"
+          className="group animate-enter relative flex items-center gap-4 overflow-hidden rounded-2xl border border-brand/30 bg-gradient-to-br from-brand/10 via-transparent to-signal/10 p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10"
+          style={{ "--stagger": 1 } as React.CSSProperties}
         >
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand text-brand-foreground">
+          <span aria-hidden className="card-sheen" />
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand text-brand-foreground transition-transform duration-300 ease-out group-hover:-rotate-6 group-hover:scale-105">
             <Sparkles className="size-5" />
           </span>
           <span className="flex-1">
@@ -59,9 +61,10 @@ export default async function DashboardPage() {
         </Link>
         <Link
           href="/search"
-          className="group flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-5 transition-colors hover:border-brand/40"
+          className="group animate-enter relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-lg hover:shadow-brand/5"
+          style={{ "--stagger": 2 } as React.CSSProperties}
         >
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted">
+          <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-muted transition-transform duration-300 ease-out group-hover:-rotate-6 group-hover:scale-105">
             <Search className="size-5" />
           </span>
           <span className="flex-1">
@@ -80,16 +83,17 @@ export default async function DashboardPage() {
       />
 
       {recentSearches.length > 0 && (
-        <section className="flex flex-col gap-3">
+        <section className="animate-enter flex flex-col gap-3" style={{ "--stagger": 3 } as React.CSSProperties}>
           <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
             <Clock className="size-4" /> Recent searches
           </h2>
           <div className="flex flex-wrap gap-2">
-            {recentSearches.map((s) => (
+            {recentSearches.map((s, index) => (
               <Link
                 key={s.id}
                 href={`/search?q=${encodeURIComponent(s.query)}`}
-                className="rounded-full border border-border/60 px-3 py-1 text-sm text-muted-foreground transition-colors hover:border-brand/40 hover:text-foreground"
+                className="animate-enter rounded-full border border-border/60 px-3 py-1 text-sm text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:text-foreground"
+                style={{ "--stagger": 4 + index } as React.CSSProperties}
               >
                 {s.query}
               </Link>

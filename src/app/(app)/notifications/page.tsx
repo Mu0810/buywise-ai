@@ -41,12 +41,13 @@ export default async function NotificationsPage() {
         />
       ) : (
         <div className="flex flex-col gap-2">
-          {items.map((n) => {
+          {items.map((n, index) => {
             const Icon = ICONS[n.type];
             return (
               <div
                 key={n.id}
-                className="flex items-start gap-3 rounded-2xl border border-border/60 bg-card p-4"
+                className="animate-enter flex items-start gap-3 rounded-2xl border border-border/60 bg-card p-4 transition-colors hover:border-brand/30"
+                style={{ "--stagger": Math.min(index, 11) } as React.CSSProperties}
               >
                 <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand/10 text-brand">
                   <Icon className="size-4" />

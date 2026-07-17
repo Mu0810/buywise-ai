@@ -8,6 +8,7 @@ import {
   UserX,
   X,
 } from "lucide-react";
+import type { CSSProperties } from "react";
 
 import type { ProductDetail } from "@/features/products/types";
 import { cn } from "@/lib/utils";
@@ -31,8 +32,12 @@ function List({
 }) {
   return (
     <ul className="flex flex-col gap-2 text-sm">
-      {items.map((item) => (
-        <li key={item} className="flex items-start gap-2">
+      {items.map((item, index) => (
+        <li
+          key={item}
+          className="animate-enter flex items-start gap-2"
+          style={{ "--stagger": index } as CSSProperties}
+        >
           <Icon className={cn("mt-0.5 size-4 shrink-0", tone)} />
           <span className="text-muted-foreground">{item}</span>
         </li>
@@ -83,16 +88,22 @@ export function ReviewAnalysis({ analysis }: { analysis: Analysis }) {
           <h3 className="text-sm font-medium">Sentiment breakdown</h3>
           <div className="flex h-3 overflow-hidden rounded-full">
             <div
-              className="bg-success"
+              className="animate-grow-x bg-success"
               style={{ width: `${sentiment.positive ?? 0}%` }}
             />
             <div
-              className="bg-muted-foreground/30"
-              style={{ width: `${sentiment.neutral ?? 0}%` }}
+              className="animate-grow-x bg-muted-foreground/30"
+              style={{
+                width: `${sentiment.neutral ?? 0}%`,
+                animationDelay: "150ms",
+              }}
             />
             <div
-              className="bg-destructive"
-              style={{ width: `${sentiment.negative ?? 0}%` }}
+              className="animate-grow-x bg-destructive"
+              style={{
+                width: `${sentiment.negative ?? 0}%`,
+                animationDelay: "300ms",
+              }}
             />
           </div>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">

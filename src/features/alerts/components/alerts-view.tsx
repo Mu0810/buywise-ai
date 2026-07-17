@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { BellRing, Check, Trash2 } from "lucide-react";
 import Link from "next/link";
 
@@ -46,46 +47,53 @@ export function AlertsView() {
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {alerts.map((alert) => {
-            const item = byId.get(alert.productId);
-            if (!item) return null;
-            const current = item.lowestPrice;
-            const triggered = current != null && current <= alert.targetPrice;
-            return (
-              <div
-                key={alert.productId}
-                className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4"
-              >
-                <Link
-                  href={`/products/${item.product.slug}`}
-                  className="min-w-0 flex-1"
+          <AnimatePresence mode="popLayout" initial={false}>
+            {alerts.map((alert) => {
+              const item = byId.get(alert.productId);
+              if (!item) return null;
+              const current = item.lowestPrice;
+              const triggered = current != null && current <= alert.targetPrice;
+              return (
+                <motion.div
+                  key={alert.productId}
+                  layout
+                  initial={{ opacity: 0, y: 14, filter: "blur(4px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, x: 24, filter: "blur(4px)" }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 transition-colors hover:border-brand/30"
                 >
-                  <p className="truncate font-medium">{item.product.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Current {current != null ? formatPrice(current) : "—"}{" "}
-                    &middot; Target {formatPrice(alert.targetPrice)}
-                  </p>
-                </Link>
-                {triggered ? (
-                  <span className="flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
-                    <Check className="size-3" /> Target reached
-                  </span>
-                ) : (
-                  <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
-                    Watching
-                  </span>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  aria-label="Remove alert"
-                  onClick={() => remove(alert.productId)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              </div>
-            );
-          })}
+                  <Link
+                    href={`/products/${item.product.slug}`}
+                    className="min-w-0 flex-1"
+                  >
+                    <p className="truncate font-medium">{item.product.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Current {current != null ? formatPrice(current) : "—"}{" "}
+                      &middot; Target {formatPrice(alert.targetPrice)}
+                    </p>
+                  </Link>
+                  {triggered ? (
+                    <span className="animate-pop-in flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-xs font-medium text-success">
+                      <Check className="size-3" /> Target reached
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+                      Watching
+                    </span>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Remove alert"
+                    onClick={() => remove(alert.productId)}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       )}
     </div>

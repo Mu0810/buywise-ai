@@ -1,3 +1,8 @@
+"use client";
+
+import { motion, useInView, useReducedMotion } from "framer-motion";
+import { useRef } from "react";
+
 import type { ProductDetail } from "@/features/products/types";
 import { formatPrice } from "@/lib/utils";
 
@@ -6,6 +11,10 @@ export function PriceHistoryChart({
 }: {
   history: ProductDetail["priceHistory"];
 }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  const reduceMotion = useReducedMotion();
+
   if (history.length < 2) return null;
 
   const prices = history.map((h) => h.price);
@@ -28,8 +37,12 @@ export function PriceHistoryChart({
   const area = `${line} L${last.x.toFixed(1)},${height - pad} L${first.x.toFixed(1)},${height - pad} Z`;
   const current = prices[prices.length - 1];
 
+  const draw = reduceMotion
+    ? { duration: 0 }
+    : { duration: 1.4, ease: [0.16, 1, 0.3, 1] as const };
+
   return (
-    <div className="flex flex-col gap-3">
+    <div ref={ref} className="flex flex-col gap-3">
       <div className="flex items-baseline justify-between text-sm">
         <span className="text-muted-foreground">
           Lowest tracked:{" "}
@@ -55,14 +68,38 @@ export function PriceHistoryChart({
             <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
           </linearGradient>
         </defs>
-        <path d={area} fill="url(#priceHistory)" />
-        <path
+        <motion.path
+          d={area}
+          fill="url(#priceHistory)"
+          initial={{ opacity: 0 }}
+          animate={inView ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ ...draw, delay: reduceMotion ? 0 : 0.5 }}
+        />
+        <motion.path
           d={line}
           fill="none"
           stroke="var(--brand)"
           strokeWidth="2"
           strokeLinejoin="round"
           strokeLinecap="round"
+          initial={{ pathLength: 0 }}
+          animate={inView ? { pathLength: 1 } : { pathLength: 0 }}
+          transition={draw}
+        />
+        {/* Current-price marker lands as the line finishes drawing. */}
+        <motion.circle
+          cx={last.x}
+          cy={last.y}
+          r="4"
+          fill="var(--brand)"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={inView ? { scale: 1, opacity: 1 } : { scale: 0, opacity: 0 }}
+          transition={{
+            duration: reduceMotion ? 0 : 0.35,
+            delay: reduceMotion ? 0 : 1.2,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+          style={{ transformOrigin: `${last.x}px ${last.y}px` }}
         />
       </svg>
     </div>

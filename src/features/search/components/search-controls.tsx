@@ -1,7 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,15 +17,6 @@ const SORTS = [
   { value: "value", label: "Best value" },
 ];
 
-function chipClass(active: boolean): string {
-  return cn(
-    "rounded-full border px-3 py-1 text-sm transition-colors",
-    active
-      ? "border-brand bg-brand/10 text-brand"
-      : "border-border text-muted-foreground hover:text-foreground",
-  );
-}
-
 export function SearchControls({
   categories,
 }: {
@@ -34,6 +26,8 @@ export function SearchControls({
   const params = useSearchParams();
   const [min, setMin] = useState(params.get("min") ?? "");
   const [max, setMax] = useState(params.get("max") ?? "");
+  // Shared-layout id so the active-chip highlight slides between categories.
+  const pillId = useId();
 
   function update(next: Record<string, string | null>) {
     const sp = new URLSearchParams(params.toString());
@@ -52,6 +46,11 @@ export function SearchControls({
   const activeCategory = params.get("category");
   const sort = params.get("sort") ?? "relevance";
 
+  const chips = [
+    { slug: null as string | null, name: "All" },
+    ...categories.map((c) => ({ slug: c.slug as string | null, name: c.name })),
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -59,23 +58,31 @@ export function SearchControls({
           Category
         </span>
         <div className="flex flex-wrap gap-1.5">
-          <button
-            type="button"
-            onClick={() => update({ category: null })}
-            className={chipClass(!activeCategory)}
-          >
-            All
-          </button>
-          {categories.map((c) => (
-            <button
-              type="button"
-              key={c.slug}
-              onClick={() => update({ category: c.slug })}
-              className={chipClass(activeCategory === c.slug)}
-            >
-              {c.name}
-            </button>
-          ))}
+          {chips.map((chip) => {
+            const active = activeCategory === chip.slug || (!activeCategory && chip.slug === null);
+            return (
+              <button
+                key={chip.slug ?? "all"}
+                type="button"
+                onClick={() => update({ category: chip.slug })}
+                className={cn(
+                  "relative rounded-full border px-3 py-1 text-sm transition-colors duration-200",
+                  active
+                    ? "border-transparent text-brand"
+                    : "border-border text-muted-foreground hover:border-brand/30 hover:text-foreground",
+                )}
+              >
+                {active && (
+                  <motion.span
+                    layoutId={pillId}
+                    transition={{ type: "spring", stiffness: 420, damping: 34 }}
+                    className="absolute inset-0 rounded-full bg-brand/10 ring-1 ring-brand"
+                  />
+                )}
+                <span className="relative">{chip.name}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -90,7 +97,7 @@ export function SearchControls({
           id="sort"
           value={sort}
           onChange={(event) => update({ sort: event.target.value })}
-          className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none transition-colors duration-200 hover:border-brand/30 focus-visible:ring-2 focus-visible:ring-ring"
         >
           {SORTS.map((s) => (
             <option key={s.value} value={s.value}>

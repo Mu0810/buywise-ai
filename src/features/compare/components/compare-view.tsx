@@ -2,7 +2,7 @@
 
 import { GitCompareArrows, X } from "lucide-react";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -65,10 +65,13 @@ export function CompareView() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="animate-enter text-2xl font-semibold tracking-tight">
         Compare {items.length} products
       </h1>
-      <div className="overflow-x-auto rounded-2xl border border-border/60">
+      <div
+        className="animate-enter overflow-x-auto rounded-2xl border border-border/60"
+        style={{ "--stagger": 1 } as CSSProperties}
+      >
         <table className="w-full min-w-[640px] text-sm">
           <thead>
             <tr className="border-b border-border/60">
@@ -79,7 +82,7 @@ export function CompareView() {
                     <div className="flex w-full items-start justify-between gap-2">
                       <Link
                         href={`/products/${item.product.slug}`}
-                        className="line-clamp-2 text-left font-medium hover:text-brand"
+                        className="line-clamp-2 text-left font-medium transition-colors hover:text-brand"
                       >
                         {item.product.name}
                       </Link>
@@ -87,7 +90,7 @@ export function CompareView() {
                         type="button"
                         aria-label="Remove from comparison"
                         onClick={() => removeFromCompare(item.product.id)}
-                        className="shrink-0 text-muted-foreground hover:text-foreground"
+                        className="shrink-0 text-muted-foreground transition-all hover:rotate-90 hover:text-foreground"
                       >
                         <X className="size-4" />
                       </button>
@@ -108,10 +111,11 @@ export function CompareView() {
             </tr>
           </thead>
           <tbody>
-            {ROWS.map((row) => (
+            {ROWS.map((row, index) => (
               <tr
                 key={row.label}
-                className="border-b border-border/40 last:border-0"
+                className="animate-enter border-b border-border/40 transition-colors last:border-0 hover:bg-muted/40"
+                style={{ "--stagger": 2 + index } as CSSProperties}
               >
                 <td className="p-4 font-medium text-muted-foreground">
                   {row.label}
@@ -123,8 +127,14 @@ export function CompareView() {
                 ))}
               </tr>
             ))}
-            {specKeys.map((key) => (
-              <tr key={key} className="border-b border-border/40 last:border-0">
+            {specKeys.map((key, index) => (
+              <tr
+                key={key}
+                className="animate-enter border-b border-border/40 transition-colors last:border-0 hover:bg-muted/40"
+                style={
+                  { "--stagger": 2 + ROWS.length + index } as CSSProperties
+                }
+              >
                 <td className="p-4 font-medium text-muted-foreground">{key}</td>
                 {items.map((item) => (
                   <td key={item.product.id} className="p-4 text-center">

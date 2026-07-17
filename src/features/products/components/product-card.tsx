@@ -18,6 +18,7 @@ export function ProductCard({ item }: { item: ProductListItem }) {
 
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card transition-all duration-300 ease-out hover:-translate-y-1 hover:border-brand/40 hover:shadow-xl hover:shadow-brand/10">
+      <span aria-hidden className="card-sheen z-10" />
       <Link href={`/products/${product.slug}`} className="flex flex-1 flex-col">
         <ProductThumb Icon={Icon} className="aspect-[4/3]" />
         <div className="flex flex-1 flex-col gap-2 p-4">

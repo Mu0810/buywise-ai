@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, GitCompareArrows } from "lucide-react";
 import type { MouseEvent } from "react";
 import { toast } from "sonner";
@@ -32,19 +33,42 @@ export function CompareButton({
   }
 
   return (
-    <button
+    <motion.button
       type="button"
       aria-label={on ? "Remove from comparison" : "Add to comparison"}
       aria-pressed={on}
       onClick={onClick}
+      whileTap={{ scale: 0.85 }}
       className={cn("inline-flex items-center gap-1.5", className)}
     >
-      {on ? (
-        <Check className="size-4 text-brand" />
-      ) : (
-        <GitCompareArrows className="size-4" />
-      )}
+      <span className="relative inline-flex size-4">
+        <AnimatePresence initial={false} mode="popLayout">
+          {on ? (
+            <motion.span
+              key="check"
+              initial={{ scale: 0.4, opacity: 0, rotate: -45 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0.4, opacity: 0, rotate: 45 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex"
+            >
+              <Check className="size-4 text-brand" />
+            </motion.span>
+          ) : (
+            <motion.span
+              key="compare"
+              initial={{ scale: 0.4, opacity: 0, rotate: 45 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              exit={{ scale: 0.4, opacity: 0, rotate: -45 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex"
+            >
+              <GitCompareArrows className="size-4" />
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </span>
       {withLabel && <span className="text-sm">{on ? "Added" : "Compare"}</span>}
-    </button>
+    </motion.button>
   );
 }

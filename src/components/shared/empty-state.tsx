@@ -1,7 +1,9 @@
 import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+
+const stagger = (index: number) => ({ "--stagger": index }) as CSSProperties;
 
 /**
  * An empty screen is an invitation to act: gold-lit icon, plain words, and
@@ -27,12 +29,26 @@ export function EmptyState({
         className,
       )}
     >
-      <span className="flex size-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+      <span
+        className="animate-pop-in flex size-14 items-center justify-center rounded-2xl bg-brand/10 text-brand"
+        style={{ animationDelay: "120ms" }}
+      >
         <Icon className="size-7" strokeWidth={1.75} />
       </span>
-      <p className="mt-1 font-medium">{title}</p>
-      <p className="max-w-sm text-sm text-muted-foreground">{description}</p>
-      {action}
+      <p className="animate-enter mt-1 font-medium" style={stagger(3)}>
+        {title}
+      </p>
+      <p
+        className="animate-enter max-w-sm text-sm text-muted-foreground"
+        style={stagger(4)}
+      >
+        {description}
+      </p>
+      {action && (
+        <div className="animate-enter" style={stagger(5)}>
+          {action}
+        </div>
+      )}
     </div>
   );
 }

@@ -13,5 +13,8 @@ export function useProductsByIds(ids: string[]) {
     queryKey: ["products-by-ids", [...ids].sort()],
     queryFn: () => fetchProductsByIds(ids),
     enabled: ids.length > 0,
+    // Keep the previous list on id changes so removals animate out instead of
+    // flashing back to a skeleton while the trimmed set refetches.
+    placeholderData: (prev) => prev,
   });
 }

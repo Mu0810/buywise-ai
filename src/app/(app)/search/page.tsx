@@ -1,6 +1,7 @@
 import { SearchX } from "lucide-react";
 import type { Metadata } from "next";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { getAuthUser } from "@/features/auth/lib/current-user";
 import { ProductCard } from "@/features/products/components/product-card";
 import { SearchBar } from "@/features/search/components/search-bar";
@@ -53,11 +54,14 @@ export default async function SearchPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4">
+      <div className="animate-enter flex flex-col gap-4">
         <h1 className="text-2xl font-semibold tracking-tight">Search</h1>
         <SearchBar defaultValue={displayQuery ?? ""} autoFocus={!displayQuery} />
         {displayQuery && (
-          <p className="text-sm text-muted-foreground">
+          <p
+            className="animate-enter text-sm text-muted-foreground"
+            style={{ "--stagger": 1 } as React.CSSProperties}
+          >
             {items.length} result{items.length === 1 ? "" : "s"} for{" "}
             <span className="font-medium text-foreground">
               &ldquo;{displayQuery}&rdquo;
@@ -67,19 +71,19 @@ export default async function SearchPage({
         )}
       </div>
       <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        <aside className="lg:sticky lg:top-20 lg:self-start">
+        <aside
+          className="animate-enter lg:sticky lg:top-20 lg:self-start"
+          style={{ "--stagger": 2 } as React.CSSProperties}
+        >
           <SearchControls categories={categories} />
         </aside>
         <div>
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/60 py-20 text-center">
-              <SearchX className="size-8 text-muted-foreground/50" />
-              <p className="font-medium">No products found</p>
-              <p className="max-w-sm text-sm text-muted-foreground">
-                Try a broader search, remove a filter, or ask the AI assistant to
-                help you find the right product.
-              </p>
-            </div>
+            <EmptyState
+              icon={SearchX}
+              title="No products found"
+              description="Try a broader search, remove a filter, or ask the AI assistant to help you find the right product."
+            />
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {items.map((item, index) => (

@@ -15,7 +15,7 @@ import { ReviewAnalysis } from "@/features/products/components/review-analysis";
 import { WishlistButton } from "@/features/wishlist/components/wishlist-button";
 import { categoryIcon } from "@/features/products/lib/category-icon";
 import { pickBestOffer } from "@/features/products/services/product.service";
-import { ScoreRing } from "@/components/motion";
+import { Reveal, ScoreRing } from "@/components/motion";
 import { ButtonLink } from "@/components/ui/button-link";
 import { JsonLd } from "@/components/shared/json-ld";
 import { formatCompactNumber, formatPrice } from "@/lib/utils";
@@ -92,10 +92,10 @@ export default async function ProductPage({
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-10">
       <JsonLd data={productLd} />
-      <div className="flex flex-col gap-2">
+      <div className="animate-enter flex flex-col gap-2">
         <Link
           href={`/search?category=${product.category.slug}`}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           &larr; {product.category.name}
         </Link>
@@ -122,7 +122,10 @@ export default async function ProductPage({
             </div>
           </div>
           {product.aiScore != null && (
-            <div className="flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/5 px-4 py-2.5">
+            <div
+              className="animate-enter flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand/5 px-4 py-2.5"
+              style={{ "--stagger": 2 } as React.CSSProperties}
+            >
               <ScoreRing score={product.aiScore} size={52} strokeWidth={4.5} />
               <div className="flex flex-col">
                 <span className="text-sm font-medium">AI score</span>
@@ -136,7 +139,10 @@ export default async function ProductPage({
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1.15fr_1fr]">
-        <div className="flex flex-col gap-6">
+        <div
+          className="animate-enter flex flex-col gap-6"
+          style={{ "--stagger": 1 } as React.CSSProperties}
+        >
           <ProductThumb
             Icon={Icon}
             className="aspect-[16/10] rounded-2xl border border-border/60"
@@ -150,10 +156,11 @@ export default async function ProductPage({
             <div>
               <h2 className="mb-3 text-sm font-medium">Key specifications</h2>
               <dl className="grid grid-cols-1 gap-x-8 sm:grid-cols-2">
-                {Object.entries(specs).map(([key, value]) => (
+                {Object.entries(specs).map(([key, value], index) => (
                   <div
                     key={key}
-                    className="flex justify-between gap-4 border-b border-border/40 py-1.5 text-sm"
+                    className="animate-enter flex justify-between gap-4 border-b border-border/40 py-1.5 text-sm"
+                    style={{ "--stagger": 3 + index } as React.CSSProperties}
                   >
                     <dt className="text-muted-foreground">{key}</dt>
                     <dd className="text-right font-medium">{value}</dd>
@@ -164,7 +171,10 @@ export default async function ProductPage({
           )}
         </div>
 
-        <div className="flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start">
+        <div
+          className="animate-enter flex flex-col gap-4 lg:sticky lg:top-20 lg:self-start"
+          style={{ "--stagger": 2 } as React.CSSProperties}
+        >
           <div className="rounded-2xl border border-border/60 bg-card p-5">
             <div className="flex items-end justify-between">
               <div>
@@ -226,24 +236,30 @@ export default async function ProductPage({
         product.buildScore,
         product.repairScore,
       ].some((s) => s != null) && (
-        <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold">Performance scores</h2>
-          <ProductScores product={product} />
-        </section>
+        <Reveal>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-lg font-semibold">Performance scores</h2>
+            <ProductScores product={product} />
+          </section>
+        </Reveal>
       )}
 
       {product.reviewAnalysis && (
-        <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold">Review intelligence</h2>
-          <ReviewAnalysis analysis={product.reviewAnalysis} />
-        </section>
+        <Reveal>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-lg font-semibold">Review intelligence</h2>
+            <ReviewAnalysis analysis={product.reviewAnalysis} />
+          </section>
+        </Reveal>
       )}
 
       {product.priceHistory.length >= 2 && (
-        <section className="flex flex-col gap-4">
-          <h2 className="text-lg font-semibold">Price history</h2>
-          <PriceHistoryChart history={product.priceHistory} />
-        </section>
+        <Reveal>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-lg font-semibold">Price history</h2>
+            <PriceHistoryChart history={product.priceHistory} />
+          </section>
+        </Reveal>
       )}
     </div>
   );
