@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, type Variants } from "framer-motion";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
 const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
@@ -8,32 +8,55 @@ const EASE_OUT_EXPO = [0.16, 1, 0.3, 1] as const;
 interface RevealProps {
   children: ReactNode;
   delay?: number;
+  /** Horizontal travel in px. */
+  x?: number;
   /** Vertical travel in px. */
   y?: number;
   /** Entrance blur in px (set 0 to disable). */
   blur?: number;
+  /** Initial scale before the element settles. */
+  scale?: number;
   duration?: number;
   className?: string;
 }
 
 /**
  * Fades, lifts and de-blurs content when it scrolls into view (once).
- * The blur pass makes entrances feel printed-in rather than slid-in.
+ * Supports directional movement for more expressive section choreography and
+ * renders immediately when the visitor prefers reduced motion.
  */
 export function Reveal({
   children,
   delay = 0,
-  y = 20,
-  blur = 5,
-  duration = 0.7,
+  x = 0,
+  y = 28,
+  blur = 8,
+  scale = 0.985,
+  duration = 0.8,
   className,
 }: RevealProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <motion.div
-      initial={{ opacity: 0, y, filter: `blur(${blur}px)` }}
-      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration, delay, ease: EASE_OUT_EXPO }}
+      initial={
+        reduceMotion
+          ? false
+          : { opacity: 0, x, y, scale, filter: `blur(${blur}px)` }
+      }
+      whileInView={{
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+        filter: "blur(0px)",
+      }}
+      viewport={{ once: true, margin: "-70px", amount: 0.12 }}
+      transition={
+        reduceMotion
+          ? { duration: 0 }
+          : { duration, delay, ease: EASE_OUT_EXPO }
+      }
       className={className}
     >
       {children}
@@ -44,17 +67,18 @@ export function Reveal({
 const groupVariants: Variants = {
   hidden: {},
   visible: (stagger: number) => ({
-    transition: { staggerChildren: stagger },
+    transition: { staggerChildren: stagger, delayChildren: 0.05 },
   }),
 };
 
 const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 22, filter: "blur(5px)" },
+  hidden: { opacity: 0, y: 30, scale: 0.965, filter: "blur(8px)" },
   visible: {
     opacity: 1,
     y: 0,
+    scale: 1,
     filter: "blur(0px)",
-    transition: { duration: 0.7, ease: EASE_OUT_EXPO },
+    transition: { duration: 0.78, ease: EASE_OUT_EXPO },
   },
 };
 
@@ -74,13 +98,15 @@ export function StaggerGroup({
   stagger = 0.08,
   className,
 }: StaggerGroupProps) {
+  const reduceMotion = useReducedMotion();
+
   return (
     <motion.div
       variants={groupVariants}
-      initial="hidden"
+      initial={reduceMotion ? "visible" : "hidden"}
       whileInView="visible"
-      viewport={{ once: true, margin: "-80px" }}
-      custom={stagger}
+      viewport={{ once: true, margin: "-70px", amount: 0.1 }}
+      custom={reduceMotion ? 0 : stagger}
       className={className}
     >
       {children}

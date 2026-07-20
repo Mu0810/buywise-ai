@@ -1,8 +1,16 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { ArrowRight, BadgeCheck, Check, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { PointerEvent } from "react";
 import { useEffect, useState } from "react";
 
 import { CountUp, EASE_OUT_EXPO, ScoreRing } from "@/components/motion";
@@ -10,7 +18,13 @@ import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
 
 /** Stores the demo "scans", in scan order. */
-const STORES = ["Amazon", "Flipkart", "Croma", "Reliance Digital", "Vijay Sales"];
+const STORES = [
+  "Amazon",
+  "Flipkart",
+  "Croma",
+  "Reliance Digital",
+  "Vijay Sales",
+];
 
 interface Scenario {
   query: string;
@@ -60,8 +74,9 @@ type Phase = "typing" | "scanning" | "verdict";
 
 /**
  * The signature hero moment: a simulated BuyWise research run. A question
- * types itself, stores are scanned one by one (signal teal = working), and
- * the verdict card assembles in gold — the product, happening on screen.
+ * types itself, stores are scanned one by one, and the verdict assembles in
+ * gold. Mouse users get a restrained perspective response; reduced-motion
+ * visitors see the completed first result without a loop.
  */
 export function ResearchConsole() {
   const router = useRouter();
@@ -70,10 +85,21 @@ export function ResearchConsole() {
   const [phase, setPhase] = useState<Phase>("typing");
   const [text, setText] = useState("");
   const [scanCount, setScanCount] = useState(0);
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const rotateX = useSpring(useTransform(pointerY, [-0.5, 0.5], [3.5, -3.5]), {
+    stiffness: 180,
+    damping: 22,
+    mass: 0.45,
+  });
+  const rotateY = useSpring(useTransform(pointerX, [-0.5, 0.5], [-3.5, 3.5]), {
+    stiffness: 180,
+    damping: 22,
+    mass: 0.45,
+  });
 
   const scenario = SCENARIOS[scenarioIndex % SCENARIOS.length];
 
-  // Phase 1 — the question types itself.
   useEffect(() => {
     if (reduceMotion || phase !== "typing") return;
     if (text === scenario.query) {
@@ -90,7 +116,6 @@ export function ResearchConsole() {
     return () => clearTimeout(timer);
   }, [phase, text, scenario.query, reduceMotion]);
 
-  // Phase 2 — stores light up as they are scanned.
   useEffect(() => {
     if (reduceMotion || phase !== "scanning") return;
     if (scanCount >= STORES.length) {
@@ -101,7 +126,6 @@ export function ResearchConsole() {
     return () => clearTimeout(timer);
   }, [phase, scanCount, reduceMotion]);
 
-  // Phase 3 — hold the verdict, then run the next question.
   useEffect(() => {
     if (reduceMotion || phase !== "verdict") return;
     const timer = setTimeout(() => {
@@ -112,40 +136,102 @@ export function ResearchConsole() {
     return () => clearTimeout(timer);
   }, [phase, reduceMotion]);
 
-  // Reduced motion: show the finished state of the first scenario, no loop.
   const staticMode = Boolean(reduceMotion);
   const shownText = staticMode ? scenario.query : text;
   const shownPhase: Phase = staticMode ? "verdict" : phase;
   const shownScans = staticMode ? STORES.length : scanCount;
+  const progress =
+    shownPhase === "verdict"
+      ? 100
+      : shownPhase === "scanning"
+        ? 20 + (shownScans / STORES.length) * 75
+        : Math.min(18, (shownText.length / scenario.query.length) * 18);
+
+  function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
+    if (reduceMotion || event.pointerType !== "mouse") return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    pointerX.set((event.clientX - rect.left) / rect.width - 0.5);
+    pointerY.set((event.clientY - rect.top) / rect.height - 0.5);
+  }
+
+  function resetPerspective() {
+    pointerX.set(0);
+    pointerY.set(0);
+  }
 
   return (
-    <div className="relative w-full max-w-2xl">
-      <div
+    <div className="relative w-full max-w-2xl [perspective:1200px]">
+      <motion.div
         aria-hidden
-        className="absolute -inset-4 rounded-[2rem] bg-brand/10 opacity-60 blur-2xl"
+        animate={
+          staticMode
+            ? { opacity: 0.45, scale: 1 }
+            : shownPhase === "scanning"
+              ? { opacity: [0.35, 0.75, 0.35], scale: [0.98, 1.03, 0.98] }
+              : { opacity: 0.5, scale: 1 }
+        }
+        transition={
+          shownPhase === "scanning"
+            ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" }
+            : { duration: 0.5 }
+        }
+        className="bg-brand/20 absolute -inset-6 rounded-[2.5rem] blur-3xl"
       />
-      <div className="relative flex flex-col gap-4 rounded-2xl border border-border/70 bg-card/80 p-4 shadow-2xl shadow-black/20 backdrop-blur-xl sm:p-5">
-        {/* Query line */}
-        <div className="flex items-center gap-3 rounded-xl border border-border/70 bg-background/60 p-2 pl-4">
-          <Search className="size-5 shrink-0 text-muted-foreground" />
+
+      <motion.div
+        onPointerMove={handlePointerMove}
+        onPointerLeave={resetPerspective}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="animated-border border-border/70 bg-card/85 relative flex flex-col gap-4 rounded-2xl border p-4 shadow-2xl shadow-black/25 backdrop-blur-xl sm:p-5"
+      >
+        <div className="border-border/50 flex items-center justify-between border-b pb-3">
+          <div className="flex items-center gap-1.5" aria-hidden>
+            <span className="bg-destructive/70 size-2 rounded-full" />
+            <span className="bg-brand/70 size-2 rounded-full" />
+            <span className="bg-success/70 size-2 rounded-full" />
+          </div>
+          <p className="text-muted-foreground font-mono text-[9px] font-semibold tracking-[0.2em] uppercase sm:text-[10px]">
+            BuyWise research engine
+          </p>
+          <span className="text-signal inline-flex items-center gap-1.5 font-mono text-[9px] tracking-wider uppercase">
+            <span className="animate-pulse-ring bg-signal size-1.5 rounded-full" />
+            Live
+          </span>
+        </div>
+
+        <div className="border-border/70 bg-background/60 flex items-center gap-3 rounded-xl border p-2 pl-4 shadow-inner shadow-black/5">
+          <Search className="text-muted-foreground size-5 shrink-0" />
           <div className="flex h-10 flex-1 items-center overflow-hidden text-left">
-            <span className="truncate text-sm text-foreground sm:text-base">
+            <span className="text-foreground truncate text-sm sm:text-base">
               {shownText}
             </span>
             {!staticMode && (
-              <span className="ml-0.5 inline-block h-5 w-px animate-pulse bg-brand" />
+              <span className="bg-brand ml-0.5 inline-block h-5 w-px animate-pulse" />
             )}
           </div>
           <Button
             size="lg"
-            className="h-10 gap-1.5 px-4"
+            aria-label="Ask BuyWise"
+            className="group h-10 gap-1.5 px-3 sm:px-4"
             onClick={() => router.push("/register")}
           >
-            Ask BuyWise <ArrowRight className="size-4" />
+            <span className="hidden sm:inline">Ask BuyWise</span>
+            <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Button>
         </div>
 
-        {/* Store scan rail */}
+        <div className="bg-muted h-0.5 overflow-hidden rounded-full">
+          <motion.div
+            className="from-signal via-brand to-success h-full rounded-full bg-gradient-to-r shadow-[0_0_12px_var(--brand)]"
+            animate={{ width: `${progress}%` }}
+            transition={
+              staticMode
+                ? { duration: 0 }
+                : { duration: 0.45, ease: EASE_OUT_EXPO }
+            }
+          />
+        </div>
+
         <div className="flex flex-wrap items-center gap-1.5">
           {STORES.map((store, index) => {
             const isDone =
@@ -153,24 +239,36 @@ export function ResearchConsole() {
               (shownPhase === "scanning" && index < shownScans);
             const isActive = shownPhase === "scanning" && index === shownScans;
             return (
-              <span
+              <motion.span
+                layout
                 key={store}
+                animate={
+                  isActive
+                    ? { y: [0, -2, 0], scale: [1, 1.04, 1] }
+                    : { y: 0, scale: 1 }
+                }
+                transition={
+                  isActive
+                    ? { duration: 0.8, repeat: Infinity, ease: "easeInOut" }
+                    : { duration: 0.25 }
+                }
                 className={cn(
-                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide transition-colors duration-300",
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] tracking-wide uppercase transition-colors duration-300",
                   isDone && "border-success/40 bg-success/10 text-success",
                   isActive &&
                     "animate-pulse-ring border-signal/50 bg-signal/10 text-signal",
-                  !isDone && !isActive && "border-border/60 text-muted-foreground/60",
+                  !isDone &&
+                    !isActive &&
+                    "border-border/60 text-muted-foreground/60",
                 )}
               >
                 {isDone && <Check className="size-2.5" strokeWidth={3} />}
                 {store}
-              </span>
+              </motion.span>
             );
           })}
         </div>
 
-        {/* Swap area: status line while working, verdict card when done */}
         <div className="relative min-h-[8.5rem] sm:min-h-[7.5rem]">
           <AnimatePresence mode="wait" initial={false}>
             {shownPhase !== "verdict" ? (
@@ -180,18 +278,24 @@ export function ResearchConsole() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8, transition: { duration: 0.18 } }}
                 transition={{ duration: 0.3, ease: EASE_OUT_EXPO }}
-                className="flex h-full min-h-[inherit] flex-col items-start justify-center gap-2 rounded-xl border border-dashed border-border/60 px-4"
+                className="border-border/60 relative flex h-full min-h-[inherit] flex-col items-start justify-center gap-2 overflow-hidden rounded-xl border border-dashed px-4"
               >
-                <p className="font-mono text-xs text-shimmer">
+                {shownPhase === "scanning" && (
+                  <span
+                    aria-hidden
+                    className="animate-scan-line via-signal absolute inset-x-0 h-px bg-gradient-to-r from-transparent to-transparent shadow-[0_0_12px_var(--signal)]"
+                  />
+                )}
+                <p className="text-shimmer font-mono text-xs">
                   {shownPhase === "typing"
                     ? "Ready to research the whole market…"
                     : shownScans < STORES.length
                       ? `Scanning ${STORES[shownScans]}…`
                       : "Reading reviews · comparing 14 offers…"}
                 </p>
-                <p className="text-xs text-muted-foreground/70">
-                  Specs, prices, coupons and thousands of reviews — decoded
-                  into one verdict.
+                <p className="text-muted-foreground/70 text-xs">
+                  Specs, prices, coupons and thousands of reviews — decoded into
+                  one verdict.
                 </p>
               </motion.div>
             ) : (
@@ -205,14 +309,15 @@ export function ResearchConsole() {
                 animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
                 exit={{ opacity: 0, y: -10, transition: { duration: 0.2 } }}
                 transition={{ duration: 0.55, ease: EASE_OUT_EXPO }}
-                className="relative flex h-full min-h-[inherit] items-center gap-4 rounded-xl border border-brand/30 bg-brand/[0.06] px-4 py-3 text-left"
+                className="group border-brand/30 bg-brand/[0.06] relative flex h-full min-h-[inherit] items-center gap-4 overflow-hidden rounded-xl border px-4 py-3 text-left"
               >
+                <span className="card-sheen" aria-hidden />
                 <ScoreRing score={scenario.score} size={60} delay={0.15} />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-medium">
                     {scenario.product}
                   </p>
-                  <p className="mt-0.5 font-mono text-[11px] text-muted-foreground">
+                  <p className="text-muted-foreground mt-0.5 font-mono text-[11px]">
                     {scenario.reviews}
                   </p>
                   <div className="mt-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
@@ -224,17 +329,19 @@ export function ResearchConsole() {
                         delay={0.2}
                       />
                     </span>
-                    <del className="font-mono text-xs text-muted-foreground/70">
+                    <del className="text-muted-foreground/70 font-mono text-xs">
                       {formatPrice(scenario.wasPrice)}
                     </del>
-                    <span className="text-xs font-medium text-success">
+                    <span className="text-success text-xs font-medium">
                       {scenario.note}
                     </span>
                   </div>
                 </div>
                 <motion.span
                   initial={
-                    staticMode ? false : { opacity: 0, scale: 0.55, rotate: -10 }
+                    staticMode
+                      ? false
+                      : { opacity: 0, scale: 0.55, rotate: -10 }
                   }
                   animate={{ opacity: 1, scale: 1, rotate: -3 }}
                   transition={{
@@ -243,7 +350,7 @@ export function ResearchConsole() {
                     damping: 16,
                     delay: staticMode ? 0 : 0.75,
                   }}
-                  className="absolute -top-2.5 right-3 inline-flex items-center gap-1 rounded-full border border-brand/50 bg-brand px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-brand-foreground shadow-lg"
+                  className="border-brand/50 bg-brand text-brand-foreground absolute -top-2.5 right-3 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[10px] font-semibold tracking-wide uppercase shadow-lg"
                 >
                   <BadgeCheck className="size-3" />
                   Best value · {scenario.store}
@@ -252,7 +359,7 @@ export function ResearchConsole() {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -369,7 +369,11 @@
 
   /* Radial fade mask, used to soften decorative backgrounds at the edges. */
   .mask-radial-fade {
-    -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      black 40%,
+      transparent 75%
+    );
     mask-image: radial-gradient(ellipse at center, black 40%, transparent 75%);
   }
 
@@ -426,5 +430,223 @@
     animation: none !important;
     color: var(--muted-foreground);
     background-image: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Marketing motion atmosphere                                        */
+/* ------------------------------------------------------------------ */
+
+@keyframes aurora-drift {
+  0%,
+  100% {
+    transform: translate3d(-3%, 0, 0) rotate(-4deg) scale(1);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translate3d(4%, 5%, 0) rotate(5deg) scale(1.08);
+    opacity: 0.85;
+  }
+}
+
+@keyframes orbit-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbit-turn-reverse {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes bob-soft {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes scan-line-y {
+  0% {
+    top: -10%;
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: 0.9;
+  }
+  100% {
+    top: 110%;
+    opacity: 0;
+  }
+}
+
+@keyframes scan-line-x {
+  0% {
+    left: -35%;
+    opacity: 0;
+  }
+  12%,
+  88% {
+    opacity: 0.9;
+  }
+  100% {
+    left: 110%;
+    opacity: 0;
+  }
+}
+
+@keyframes grid-drift {
+  to {
+    background-position: 56px 56px;
+  }
+}
+
+@keyframes gradient-flow {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@layer utilities {
+  .hero-aurora {
+    background-image: conic-gradient(
+      from 210deg at 50% 50%,
+      transparent 0deg,
+      color-mix(in oklch, var(--brand) 52%, transparent) 62deg,
+      transparent 132deg,
+      color-mix(in oklch, var(--signal) 38%, transparent) 224deg,
+      transparent 310deg
+    );
+  }
+
+  .animate-aurora {
+    animation: aurora-drift 16s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  .animate-orbit {
+    animation: orbit-turn 24s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-orbit-reverse {
+    animation: orbit-turn-reverse 32s linear infinite;
+    will-change: transform;
+  }
+
+  .animate-twinkle {
+    animation: twinkle 3.2s ease-in-out infinite;
+  }
+
+  .animate-bob {
+    animation: bob-soft 3.4s ease-in-out infinite;
+  }
+
+  .animate-scan-line {
+    animation: scan-line-y 1.5s linear infinite;
+  }
+
+  .animate-scan-x {
+    animation: scan-line-x 4.5s var(--ease-out-expo) infinite;
+  }
+
+  .animate-grid-drift {
+    animation: grid-drift 18s linear infinite;
+  }
+
+  .text-gradient-brand {
+    background-size: 220% 100%;
+    animation: gradient-flow 7s ease-in-out infinite;
+  }
+
+  .animated-border::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    z-index: 5;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg 235deg,
+      color-mix(in oklch, var(--signal) 70%, transparent) 275deg,
+      color-mix(in oklch, var(--brand) 90%, transparent) 315deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: orbit-turn 7s linear infinite;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .motion-card {
+    transform: translateZ(0);
+    transform-origin: center;
+    transition:
+      transform 500ms var(--ease-out-expo),
+      border-color 350ms ease,
+      box-shadow 500ms var(--ease-out-expo);
+  }
+
+  .motion-card:hover {
+    transform: perspective(900px) translateY(-8px) rotateX(1.5deg)
+      rotateY(-1.5deg) scale(1.012);
+    border-color: color-mix(in oklch, var(--brand) 42%, var(--border));
+    box-shadow:
+      0 24px 48px -28px color-mix(in oklch, var(--foreground) 35%, transparent),
+      0 12px 28px -18px color-mix(in oklch, var(--brand) 45%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-aurora,
+  .animate-orbit,
+  .animate-orbit-reverse,
+  .animate-twinkle,
+  .animate-bob,
+  .animate-scan-line,
+  .animate-scan-x,
+  .animate-grid-drift,
+  .text-gradient-brand,
+  .animated-border::before {
+    animation: none !important;
+  }
+
+  .animate-scan-line,
+  .animate-scan-x {
+    display: none;
+  }
+
+  .motion-card,
+  .motion-card:hover {
+    transform: none !important;
+    transition: none !important;
   }
 }
