@@ -49,7 +49,11 @@ export class OpenAIProvider implements AIProvider {
   private readonly client: OpenAI;
 
   constructor(private readonly products: ProductService) {
-    this.client = new OpenAI({ apiKey: env.OPENAI_API_KEY });
+    // Supports any OpenAI-compatible endpoint (e.g. Groq) via OPENAI_BASE_URL.
+    this.client = new OpenAI({
+      apiKey: env.OPENAI_API_KEY,
+      ...(env.OPENAI_BASE_URL ? { baseURL: env.OPENAI_BASE_URL } : {}),
+    });
   }
 
   async respond(messages: ChatMessage[]): Promise<AssistantReply> {
