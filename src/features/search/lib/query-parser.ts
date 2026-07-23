@@ -58,3 +58,26 @@ export function extractPriorities(query: string): string[] {
     .filter(([, keywords]) => keywords.some((kw) => q.includes(kw)))
     .map(([tag]) => tag);
 }
+
+const STOPWORDS = new Set([
+  "the", "a", "an", "and", "or", "of", "for", "to", "in", "on", "with", "best",
+  "good", "cheap", "under", "below", "over", "above", "around", "upto", "less",
+  "than", "within", "me", "my", "want", "need", "buy", "buying", "show", "find",
+  "looking", "look", "please", "recommend", "suggest", "some", "any", "new",
+  "top", "price", "prices", "deal", "deals", "rs", "inr", "rupees", "rupee",
+  "vs", "between", "is", "are", "which", "what", "that", "this",
+]);
+
+/**
+ * Break free text into meaningful, de-duplicated lowercase search tokens.
+ * Drops punctuation, single characters, and common shopping stop-words so the
+ * remaining tokens are useful for matching against product fields.
+ */
+export function tokenize(query: string): string[] {
+  const tokens = new Set<string>();
+  for (const raw of query.toLowerCase().split(/[^a-z0-9]+/)) {
+    if (raw.length < 2 || STOPWORDS.has(raw)) continue;
+    tokens.add(raw);
+  }
+  return [...tokens];
+}

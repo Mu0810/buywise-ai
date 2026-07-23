@@ -6,6 +6,7 @@ import {
   detectCategory,
   extractBudget,
   extractPriorities,
+  tokenize,
 } from "@/features/search/lib/query-parser";
 
 const BRAND_KEYWORDS: Record<string, string> = {
@@ -69,12 +70,20 @@ export async function retrieveCandidates(
   const budget = extractBudget(userText);
   const priorities = extractPriorities(userText);
   const brands = detectBrands(userText);
-  if (!category) return { category, budget, priorities, brands, items: [] };
+
+  // Search when there's any usable signal — a category, a named brand, or
+  // meaningful free-text tokens — not only when a category is detected.
+  const hasText = tokenize(userText).length > 0;
+  if (!category && brands.length === 0 && !hasText) {
+    return { category, budget, priorities, brands, items: [] };
+  }
 
   const items = await productService.search({
     categorySlug: category,
     maxPrice: budget,
     brandSlugs: brands.length > 0 ? brands : undefined,
+    // With no category, fall back to free-text matching across product fields.
+    query: category ? undefined : userText,
     sort: "ai-score",
     limit: 12,
   });

@@ -8,6 +8,7 @@ import type {
   ProductWithOffers,
   SortOption,
 } from "@/features/products/types";
+import { tokenize } from "@/features/search/lib/query-parser";
 
 const listInclude = {
   brand: true,
@@ -36,7 +37,24 @@ export class ProductRepository {
   search(filters: ProductFilters): Promise<ProductWithOffers[]> {
     const where: Prisma.ProductWhereInput = { status: "ACTIVE" };
     if (filters.query) {
-      where.name = { contains: filters.query, mode: "insensitive" };
+      const tokens = tokenize(filters.query);
+      if (tokens.length > 0) {
+        // Match each token across name, descriptions, brand and category so a
+        // spec ("oled", "rtx"), brand or descriptive word finds products even
+        // when it isn't in the product name.
+        const orFields = (t: string): Prisma.ProductWhereInput[] => [
+          { name: { contains: t, mode: "insensitive" } },
+          { shortDescription: { contains: t, mode: "insensitive" } },
+          { description: { contains: t, mode: "insensitive" } },
+          { brand: { name: { contains: t, mode: "insensitive" } } },
+          { category: { name: { contains: t, mode: "insensitive" } } },
+        ];
+        if (filters.matchMode === "any") {
+          where.OR = tokens.flatMap(orFields);
+        } else {
+          where.AND = tokens.map((t) => ({ OR: orFields(t) }));
+        }
+      }
     }
     if (filters.categorySlug) {
       where.category = { slug: filters.categorySlug };

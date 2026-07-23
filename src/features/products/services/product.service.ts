@@ -44,7 +44,13 @@ export class ProductService {
   constructor(private readonly products: ProductRepository) {}
 
   async search(filters: ProductFilters): Promise<ProductListItem[]> {
-    const items = (await this.products.search(filters)).map(toListItem);
+    let rows = await this.products.search(filters);
+    // Graceful recall: if a text query matched nothing with strict all-token
+    // matching, retry once with looser any-token matching before giving up.
+    if (rows.length === 0 && filters.query && filters.matchMode !== "any") {
+      rows = await this.products.search({ ...filters, matchMode: "any" });
+    }
+    const items = rows.map(toListItem);
     if (filters.sort === "price-asc") {
       items.sort(
         (a, b) => (a.lowestPrice ?? Infinity) - (b.lowestPrice ?? Infinity),

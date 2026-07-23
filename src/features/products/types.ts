@@ -51,4 +51,6 @@ export interface ProductFilters {
   sort?: SortOption;
   limit?: number;
   offset?: number;
+  /** How multi-token text queries combine: "all" tokens (strict) or "any" (loose). */
+  matchMode?: "all" | "any";
 }
